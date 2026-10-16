@@ -1,0 +1,48 @@
+from hub import light_matrix, port
+import motor, color_sensor, distance_sensor, runloop,random,time
+BLACK = 35
+SPEED = 275
+TURN = 325
+STOP_DISTANCE = 120 #12 cm
+
+#funksjon for underholdning 360 grader rotasjon
+async def treseksti():
+    motor.run_for_degrees(port.A, 720, 300)
+    await motor.run_for_degrees(port.B, 720, 300)
+
+#funksjon for underholdning beep
+async def beep():
+    from hub import sound
+    sound.beep(1000, 500)
+    await runloop.sleep_ms(500)
+
+#funksjon for underholdning som kjører frem og tilbake
+async def backflip():
+    motor.run_for_degrees(port.A, 100, 200)
+    await motor.run_for_degrees(port.B, -100, 200)
+    motor.run_for_degrees(port.A, -100, 200)
+    await motor.run_for_degrees(port.B, 100, 200)
+
+#funksjon for printe ut tallene "6 7" og viser image nummer 67 som er en python
+async def tekst():
+    await light_matrix.write("6 7")
+    light_matrix.show_image(67)
+    light_matrix.clear()
+
+#liste med underholdning
+underholdning = [treseksti, beep, backflip, tekst]
+
+#Følge linjene
+def follow_line(left, right):
+    if left < BLACK:
+        motor.run(port.A, SPEED + TURN)
+        motor.run(port.B, -(SPEED - TURN))
+    elif right < BLACK:
+        motor.run(port.A, SPEED - TURN)
+        motor.run(port.B, -(SPEED + TURN))
+    else:
+        motor.run(port.A, SPEED)
+        motor.run(port.B, -SPEED)
+
+async def main():
+    timer = 0 #teller loops
